@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+    <Module>
+    <ModulePrefs title="Test Coverage Status by Emma Report"
+                 author="WSO2 QA Portal"
+                 height="230"
+                 scrolling="true"
+                 tags="charts,bar,visualization,data"
+                 description=" Test Coverage Status by Emma Report">
+        <Require feature="pubsub-2">
+            <Param name="topics">
+                <![CDATA[
+                    <Topic title="reqParam" name="req-param-channel"
+                    description="Subscribes to request params channel" type="object"
+                    subscribe="true"/>
+                ]]>
+            </Param>
+        </Require>
+     </ModulePrefs>
+    <UserPref name="dataSource"
+              display_name="Data Source"
+              default_value="../../Build-Status-Dashboard/apis/testCoverage.jag">
+    </UserPref>
+    <UserPref name="updateGraph"
+              display_name="Update Interval (s)"
+              default_value="No">
+    </UserPref>
+    <Content type="html">
+    <![CDATA[
+
+	 <html>
+	 <head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+		<title>Test Status / Test Owner</title>
+		<link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.1.0/css/bootstrap-theme.min.css">
+		<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js"></script>
+		<script src="js/highcharts.js"></script>
+		<script src="js/exporting.js"></script>
+		<script type="text/javascript">		
+			function fetchData(params) {
+				var url = (new gadgets.Prefs()).getString("dataSource")+ "?" + params;
+
+				$.ajax({
+				    url: url,
+				    type: "GET",
+				    dataType: "json",
+				    success: onDataReceived
+				});
+			}
+			function onDataReceived(data) {
+				$('#container').highcharts(data);
+			     
+			}
+			gadgets.HubSettings.onConnect = function () {
+             		gadgets.Hub.subscribe("req-param-channel", callback);
+            };
+            function callback(topic, params, subscriberData) {
+                fetchData(params);
+
+            }
+	    	</script>
+	
+	</head>
+
+	<body>
+		<div style="margin:10px;">	
+			<div id="container"></div>
+		<div>
+	</body>
+	</html>
+
+    ]]>
+</Content>
+</Module>
+
+

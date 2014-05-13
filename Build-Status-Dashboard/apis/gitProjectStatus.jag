@@ -1,0 +1,76 @@
+<%
+    //http://localhost:9763/portal/gadgets/git-project-summary/git-project-sum	
+	include("db.jag");
+
+//	response.addHeader("Access-Control-Allow-Origin", "*");
+//	response.addHeader("Content-Type", "application/json");
+
+	var git_ID = request.getParameter("gitID");
+
+	function formatDate(buildDate){
+		
+		if(buildDate != null){
+			buildDate = buildDate.substr(0 , buildDate.length -1);
+			buildDate = buildDate.replace("T"," ");
+		}
+		return buildDate;
+	}
+
+    function getData(){
+
+	 	var query1  ="SELECT * FROM GitSummary WHERE payload_repositoryID='"+git_ID+"';";
+		var repositoryID ,ownerID, totalCommits , totalPullRequests , topContributor, lastCommitDateTime ;
+
+		var db = getDatabaseConnection();
+
+		try{
+			var results = db.query(query1);
+			
+			repositoryID = 	results[0].payload_repositoryID;
+			ownerID = 		results[0].payload_ownerID;
+			totalCommits = 	results[0].payload_totalNumberOfCommits;
+			totalPullRequests = results[0].payload_totalPullRequests;
+			topContributor = results[0].payload_topContributor;
+			lastCommitDateTime = formatDate(results[0].payload_lastCommitDateTime);
+		
+		}
+		catch(e){
+			print(e.toString());
+		}
+		finally{
+			db.close();
+		}
+
+
+	 	var data  = [
+				{
+		                    	key: 'Github Repository ID',
+		                    	value: repositoryID
+		                	},
+				{
+		                    	key: 'Github Owner ID',
+		                    	value: ownerID
+		                	},
+				{
+		                    	key: 'Total No of Commits',
+		                    	value: totalCommits
+		                	},
+				{
+		                    	key: 'Total No of Pull Requests',
+		                    	value: totalPullRequests
+		                	},
+				{
+		                    	key: 'Top Contributor',
+		                    	value: topContributor
+		                	},
+				{
+		                    	key: 'Last Commit Date Time',
+		                    	value: lastCommitDateTime
+		                	}
+				]
+		    return data;
+    }
+    
+    print(getData());
+%>
+

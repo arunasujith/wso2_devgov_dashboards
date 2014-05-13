@@ -1,0 +1,87 @@
+<%
+	//var bambooURL = request.getParameter("jenkinsID");
+	include("db.jag");
+
+	var jenkinsURL = request.getParameter("jenkinsURL");
+
+	var project_ID;
+	if(jenkinsURL != null){
+		if(jenkinsURL.substring(jenkinsURL.lastIndexOf("/") , jenkinsURL.length) == '/'){
+			jenkinsURL = jenkinsURL.substring(0 , jenkinsURL.length - 1);
+		}
+		project_ID = jenkinsURL.substring(jenkinsURL.lastIndexOf("/")+1,jenkinsURL.length);
+	}
+	
+
+    function getData(){
+
+		var successRate , failureRate ;
+
+		if(project_ID == null){
+			successRate =0;
+			failureRate =0;
+		}
+		else{
+
+			var query1  ="SELECT * FROM JenkinsSummary WHERE payload_planName='"+project_ID+"';";
+		
+
+			var db = getDatabaseConnection();
+
+			try{
+				var results = db.query(query1);
+				buildPlan 	=  	results[0].payload_planID;
+				successRate	= 	results[0].payload_successRate;
+			
+				failureRate =	100 - successRate
+		
+			}
+			catch(e){
+				print(e.toString());
+			}
+			finally{
+				db.close();
+			}
+		}
+ 
+		var data =  [
+				{
+					"series0" : {"color" : "#8bbc21", "label" : "Passed", "data" : parseFloat(successRate)}, 
+					"series1" : {"color" : "#910000", "label" : "Failed", "data" : parseFloat(failureRate)}
+				}
+
+			    ] 
+
+		return data;
+	}
+
+	var options = {
+		   series: {
+			pie: {
+			    show: true
+			}
+		    },
+		    legend: {
+			show: false
+		    },
+		    	grid: {
+				hoverable: true
+			},
+			tooltip: true,
+			tooltipOpts: {
+				content: "%p.0%, %s",
+				shifts: {
+					x: 20,
+					y: 0
+				},
+				defaultTheme: true
+			}
+	};
+	function labelFormatter(label, series) {
+		return "<div style='font-size:8pt; text-align:center; padding:2px; color:white;'>" + label + "<br/>" + Math.round(series.percent) + "%</div>";
+	}
+
+
+
+   print({'content':getData(),'options':options});
+%>

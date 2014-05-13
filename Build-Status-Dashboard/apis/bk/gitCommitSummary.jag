@@ -1,0 +1,137 @@
+<%
+    //http://localhost:9763/portal/gadgets/git-commit-summary/api/gitCommitSummary.jag
+
+	var git_ID = request.getParameter("gitID");
+
+	function getMySQLData(){
+
+		var results;
+
+		if(git_ID != null){
+			var query1  ="SELECT * FROM GitSummary WHERE payload_repositoryID='"+git_ID+"';";
+		
+
+			config = {};
+			var db = new Database("jdbc:mysql://localhost:3306/greg", "root", "123", config);
+		
+			try{
+				var results = db.query(query1);
+	
+			}
+			catch(e){
+				print(e.toString());
+			}
+			finally{
+				db.close();
+			}
+		}
+		return results;
+	}
+	
+	function getDateTime(){
+		var results = getMySQLData();
+		var dateTime;
+		if(results != null){
+			 dateTime = results[0].payload_lastCommitDateTime;
+		}
+		
+		return dateTime;
+	}
+
+	function getProjectName(){
+		var results = getMySQLData();
+		var projectName;
+		if(results != null){
+			projectName = results[0].payload_repositoryID;
+		}
+		return projectName;
+	}
+
+	function getDateArray(){
+		var date = [];  								//2014-02-10T13:19:30Z
+		var dateTime = getDateTime();
+		if(dateTime != null){
+			var year = parseInt(dateTime.substr(0 , 4));
+			date[0] = year -1;
+			date[1] = parseInt(dateTime.substr(5 , 2));
+			date[2] = parseInt(dateTime.substr(8 , 2));
+		}
+		//print(date);
+		return date;
+	}
+	
+	function getDate(){
+		var date = getDateArray();
+		return Date.UTC(date[0], date[1], date[2]);
+	}
+
+    function getData(){
+
+		var commitsDataArray = [];
+		var graphDataArray = [];
+		try{
+			var results = getMySQLData();
+			var graphdata = results[0].payload_commitLastYear;
+			graphDataArray = graphdata.split(",");
+		
+		}
+		catch(e){
+			print(e.toString());
+		}
+
+		if (graphDataArray.length > 0)
+		    graphDataArray = graphDataArray.slice(1);
+
+	 	for (var i = 1; i <graphDataArray.length; ++i) {
+			var data =  graphDataArray[i];
+		 	commitsDataArray.push(parseInt(data));
+	 	}
+ 
+        return commitsDataArray;
+    }
+
+
+    var dataWithOptions =  {
+			  chart: {
+                zoomType: 'x',
+                spacingRight: 20
+              },
+                title: {
+                    text: 'Github Year summary'
+                },
+                subtitle: {
+                    text: getProjectName()
+                },
+                xAxis: {
+                    type: 'datetime', 
+					maxZoom: 1 * 24 * 3600000, // fourteen days
+                title: {
+                    text: null
+                }
+                },
+		yAxis: {
+			title: {
+				text: 'No Of Commits'
+			},
+			plotLines: [{
+			value: 0,
+			width: 0,
+			color: '#808080'
+			}]
+		},
+		tooltip: {
+			valueSuffix: ''
+		},    
+ 	
+            series: [{
+                type: 'area',
+                name: 'Github Commits Summary',
+                pointInterval: 7* 24 * 3600000, //one week
+                pointStart: getDate(),
+                data: getData()
+            }]
+     }
+
+    print(dataWithOptions);
+%>
+

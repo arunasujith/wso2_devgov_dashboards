@@ -1,0 +1,95 @@
+<%
+    //http://localhost:9763/portal/gadgets/git-project-summary/git-project-summary.xml
+	
+	include("db.jag");
+	
+	
+	var jenkinsURL = request.getParameter("jenkinsURL");
+
+	var project_ID;
+	if(jenkinsURL != null){
+		if(jenkinsURL.substring(jenkinsURL.lastIndexOf("/") , jenkinsURL.length) == '/'){
+			jenkinsURL = jenkinsURL.substring(0 , jenkinsURL.length - 1);
+		}
+		project_ID = jenkinsURL.substring(jenkinsURL.lastIndexOf("/")+1,jenkinsURL.length);
+	}
+	
+	function formatDate(buildDate){
+		
+		if(buildDate != null){
+			//buildDate = buildDate.substr(0 , buildDate.length -1);
+			buildDate = buildDate.replace("T"," \t ");
+		}
+		return buildDate;
+	}
+
+    function getData(){
+
+		var projectID ,planName, planID , buildNUmber , buildDate, buildState , relativeBuildDate ;
+		
+		if(project_ID != null){
+
+
+		 	var query1  ="SELECT * FROM JenkinsSummary WHERE payload_planName='"+project_ID+"';";
+
+
+			var db = getDatabaseConnection();
+
+			try{
+				var results = db.query(query1);
+
+				projectID 			= 	results[0].payload_projectID;
+				planName 			=	results[0].payload_planName;
+				planID 				= 	results[0].payload_planID;
+				buildNUmber 		= 	results[0].payload_buildNumber;
+				buildDate 			= 	results[0].payload_buildDate;
+				buildState 			= 	results[0].payload_buildState;
+				relativeBuildDate 	= 	results[0].payload_relativeBuildDate/1000;
+		
+				//buildDate = formatDate(buildDate);
+		
+			}
+			catch(e){
+				print(e.toString());
+			}
+			finally{
+				db.close();
+			}
+
+		}
+	 	var data  = [
+				{
+		                    	key: 'Jenkins Build ID',
+		                    	value: projectID
+		                	},
+				{
+		                    	key: 'Plan Name',
+		                    	value: planName
+		                	},
+				{
+		                    	key: 'Plan ID',
+		                    	value: planID
+		                	},
+				{
+		                    	key: 'Build Number',
+		                    	value: buildNUmber
+		                	},
+				{
+		                    	key: 'Build Date',
+		                    	value: buildDate
+		                	},
+				{
+		                    	key: 'Latest Build State',
+		                    	value: buildState
+		                	},
+				{
+		                    	key: 'Build Duration (seconds)',
+		                    	value: relativeBuildDate
+		                	}
+				]
+		    return data;
+    }
+    
+    print(getData());
+%>
+

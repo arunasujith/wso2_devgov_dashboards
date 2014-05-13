@@ -1,0 +1,195 @@
+<%
+  
+	var project_ID = request.getParameter("bambooID");
+
+//    payload_allClassCoverage | payload_allMethodCoverage | payload_allBlockCoverage | payload_allLineCoverage
+             
+	function getPackagesData(){
+
+		var results;
+		if(project_ID != null){
+ 
+			var query1 = "SELECT payload_planID,payload_buildNumber  FROM BambooSummary WHERE payload_projectID='"+project_ID+"';";
+			var reportID , noOfPackages , noOfClasses, noOfMethods, noOfBlocks, noOfLines , noOfFiles;
+			
+
+			config = {};
+			var db = new Database("jdbc:mysql://localhost:3306/greg", "root", "123", config);
+		
+			try{
+				results = db.query(query1);
+				var planID = results[0].payload_planID;
+				var buildNUmber = results[0].payload_buildNumber; //******************************** Create the payload_reportID
+				var planBuildNumber = planID+"-"+buildNUmber;
+
+				var query2  ="SELECT payload_allClassCoverage, payload_allMethodCoverage, payload_allBlockCoverage ,payload_allLineCoverage FROM BambooEmmaSummary WHERE payload_reportID='"+planBuildNumber+"' LIMIT 1;";
+				results = db.query(query2);
+	
+			}
+			catch(e){
+				print(e.toString());
+			}
+			finally{
+				db.close();
+			}
+
+		}
+		return results;
+	}
+
+	function getPercentage(data){
+		data = data.trim();
+		if(data.charAt(2) == '%'){
+			data = data.substr(0 , 2);			
+		}
+		else if(data.charAt(3) == '%'){
+			data = data.substr(0 , 3);
+		}
+		return data;
+	}
+
+    function getBlockCoverage(){
+
+		var covered = 0 ;
+		var notcovered = 0;
+
+		var results =  getPackagesData();
+
+		if(results != null){
+			var data = results[0].payload_allBlockCoverage;
+			covered = parseInt(getPercentage(data));
+			notcovered = parseInt(99 - covered);
+			
+		}
+
+    	var data =  [
+                     ['Covered',   covered],
+                     {
+                         name: 'Not Covered',
+                         y: notcovered,
+                         sliced: true,
+                         selected: true
+                     }
+                  ]
+
+     	return data;
+    }
+
+    function getClassCoverage(){
+
+    	var data =  [
+                     ['Covered',   55.4],
+                     {
+                         name: 'Not Covered',
+                         y: 44.6,
+                         sliced: true,
+                         selected: true
+                     }
+                  ]
+
+     	return data;
+    }
+
+   function getLineCoverage(){
+
+    	var data =  [
+                     ['Covered',   55.4],
+                     {
+                         name: 'Not Covered',
+                         y: 44.6,
+                         sliced: true,
+                         selected: true
+                     }
+                  ]
+
+     	return data;
+    }
+
+   function getMethodCoverage(){
+
+    	var data =  [
+                     ['Covered',   55.4],
+                     {
+                         name: 'Not Covered',
+                         y: 44.6,
+                         sliced: true,
+                         selected: true
+                     }
+                  ]
+
+     	return data;
+    }
+
+
+
+    var data = {
+            chart: {
+
+                plotBackgroundColor: null,
+                plotBorderWidth: null,
+                plotShadow: false
+            },
+	    colors: [
+		   '#8bbc21', 
+		   '#910000', 
+		   '#1aadce', 
+		   '#492970',
+		   '#f28f43', 
+		   '#77a1e5', 
+		   '#c42525', 
+		   '#a6c96a'
+		],
+            title: {
+                text: "Block Coverage           Class Coverage             Line Coverage        Method Coverage"
+            },
+            tooltip: {
+                pointFormat: '{series.name}: <b>{point.percentage:.1f}%</b>'
+            },
+            plotOptions: {
+                pie: {
+                    allowPointSelect: true,
+                    cursor: 'pointer',
+                    dataLabels: {
+                        enabled: true,
+                        color: '#000000',
+                        connectorColor: '#000000',
+                        format: '<b>{point.name}</b>: {point.percentage:.1f} %'
+                    }
+                }
+            },
+            series: [{
+                type: 'pie',
+		size: 200,
+		title:'kkkkk',
+                center: [200, 200],
+                name: 'Block Coverage',
+                data:  getBlockCoverage()
+
+            },{
+                type: 'pie',
+		size: 200,
+		center: [600, 200],
+                name: 'Class Coverage',
+                data:  getClassCoverage()
+
+            },{
+                type: 'pie',		
+		size: 200,
+                center: [1000, 200],
+                name: 'Line Coverage',
+                data:   getLineCoverage()
+
+            },{
+                type: 'pie',
+		size: 200,
+                center: [1400, 200],
+                name: 'Method Coverage',		
+                data:   getMethodCoverage()
+
+            }]
+    	}
+
+   
+   print(data);
+%>
+

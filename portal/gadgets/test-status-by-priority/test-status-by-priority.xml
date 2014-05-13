@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+    <Module>
+    <ModulePrefs title="Test Status / Test Priority"
+                 author="WSO2 QA Portal"
+                 height="230"
+                 scrolling="true"
+                 tags="charts,bar,visualization,data"
+                 description=" Displays test status by test priority">
+	<Require feature="pubsub-2">
+            <Param name="topics">
+                <![CDATA[
+			<Topic title="reqParam" name="req-param-channel"
+			description="Subscribes to request params channel" type="object"
+			subscribe="true"/>
+		]]>
+            </Param>
+        </Require>
+     </ModulePrefs>
+    <UserPref name="dataSource"
+              display_name="Data Source"
+              default_value="../../QADashboard/apis/TestStatusByPriority.jag">
+    </UserPref>
+    <UserPref name="updateGraph"
+              display_name="Update Interval (s)"
+              default_value="No">
+    </UserPref>
+    <Content type="html">
+        <![CDATA[
+ <html>
+ <head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+	<title>Test Statsus</title>
+	<link href="../../themes/portal/css/flot-graph.css" rel="stylesheet" type="text/css">
+	<link href="../../themes/portal/css/bootstrap.min.css" rel="stylesheet" type="text/css">
+	<script language="javascript" type="text/javascript" src="../../js/flot/excanvas.min.js"></script>
+	<script language="javascript" type="text/javascript" src="../../js/flot/jquery.js"></script>
+	<script language="javascript" type="text/javascript" src="../../js/bootstrap.js"></script>
+	<script language="javascript" type="text/javascript" src="../../js/flot/jquery.flot.js"></script>
+	<script language="javascript" type="text/javascript" src="../../js/flot/jquery.flot.stack.js"></script>
+	<script language="javascript" type="text/javascript" src="../../js/flot/jquery.flot.resize.js"></script>
+	<script language="javascript" type="text/javascript" src="../../../QADashboard/js/purl.js"></script>
+	<script language="javascript" type="text/javascript" src="../../../QADashboard/js/qa-dashboard-core.js"></script>
+
+	<script  language="javascript" type="text/javascript">
+		var previousPoint = null, previousLabel = null;
+		var labels = [ "Not Executed", "In Progress", "Failed",  "Passed"]
+		$.fn.UseTooltip2 = function () {
+		    $(this).bind("plothover", function (event, pos, item) {
+			if (item) {
+			    if ((previousLabel != item.series.label) || (previousPoint != item.dataIndex)) {
+				previousPoint = item.dataIndex;
+				previousLabel = item.series.label;
+				$("#tooltip").remove();
+
+				var x = item.datapoint[0];
+				var y = item.datapoint[1];
+
+				var color = item.series.color;
+
+				showTooltip2(item.pageX,
+				        item.pageY,
+				        color,
+				        ""+ x +" "+ item.series.label + " priority <br> tests " 
+				         +labels[y]+"");
+			    }
+			} else {
+			    $("#tooltip").remove();
+			    previousPoint = null;
+			}
+		    });
+		};
+
+
+		function showTooltip2(x, y, color, contents) {
+		    $('<div id="tooltip">' + contents + '</div>').css({
+			position: 'absolute',
+			display: 'none',
+			top: y - 60,
+			left: x - 120,
+			border: '2px solid ' + color,
+			padding: '5px',
+			'font-size': '12px',
+			'border-radius': '5px',
+			'background-color': '#fff',
+			'font-family': 'Verdana, Arial, Helvetica, Tahoma, sans-serif',
+			opacity: 0.9
+		    }).appendTo("body").fadeIn(200);
+		}
+
+		$(document).ready(function () {
+		   $("#placeholder").UseTooltip2();
+		});
+
+	</script>
+</head>
+
+<body>
+	<div>
+			
+	    <div id="placeholder" class="demo-placeholder" style="height:90%;width:90%;border:none;"></div>
+
+
+	</div>
+</body>
+</html>
+
+    ]]>
+</Content>
+</Module>
+
+

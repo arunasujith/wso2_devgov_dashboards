@@ -1,0 +1,12 @@
+<%
+
+
+	function getDatabaseConnection(){
+		
+		config = {};
+		var db = new Database("jdbc:mysql://localhost:3306/greg", "root", "123", config);
+		
+		return db; 
+	}
+
+%>

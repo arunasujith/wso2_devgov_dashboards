@@ -1,0 +1,83 @@
+<%
+    //http://localhost:9763/portal/gadgets/git-commit-details/git-commit-details.xml
+
+	include("db.jag");
+
+	var jenkinsURL = request.getParameter("jenkinsURL");
+
+	var project_ID;
+	if(jenkinsURL != null){
+		if(jenkinsURL.substring(jenkinsURL.lastIndexOf("/") , jenkinsURL.length) == '/'){
+			jenkinsURL = jenkinsURL.substring(0 , jenkinsURL.length - 1);
+		}
+		project_ID = jenkinsURL.substring(jenkinsURL.lastIndexOf("/")+1,jenkinsURL.length);
+	}
+             
+	function getRulesData(){
+
+		var results;
+		if(project_ID != null){
+ 
+			var query1 = "SELECT payload_planName,payload_buildNumber  FROM JenkinsSummary WHERE payload_planName='"+project_ID+"';";
+			//var reportID , noOfPackages , noOfClasses, noOfMethods, noOfBlocks, noOfLines , noOfFiles;
+			
+
+			var db = getDatabaseConnection();
+		
+			try{
+				results = db.query(query1);
+				//print(results);
+				var planID = results[0].payload_planName;
+				var buildNUmber = results[0].payload_buildNumber; //******************************** Create the payload_reportID
+				var planBuildNumber = planID+"-"+buildNUmber;
+
+				var query2  ="SELECT payload_componentName, payload_ruleName, payload_status FROM JenkinsBuildRulesSummary WHERE payload_buildID='"+planBuildNumber+"' ;";
+				results = db.query(query2);
+				//print(results);
+	
+			}
+			catch(e){
+				print(e.toString());
+			}
+			finally{
+				db.close();
+			}
+
+		}
+		return results;
+	}
+
+	function getFormatteddData(){
+		var allPackages= [];
+		var results =  getRulesData();
+		
+		if(results != null){
+			for(var i=0 ; i < results.length ; i++){
+				var singlePackage = [];
+				singlePackage.push(results[i].payload_componentName);
+				singlePackage.push(results[i].payload_ruleName);
+				singlePackage.push(results[i].payload_status);
+
+				allPackages.push(singlePackage);
+			}
+		}
+		//print(allCommits);
+		return allPackages;
+	}
+
+    function getData(){
+	 	var data  ={
+				"aaData": getFormatteddData(),
+				"aoColumns": [
+					{ "sTitle": "Component Name" },
+					{ "sTitle": "Rule Name" },
+					{ "sTitle": "Status" }			
+				]
+				}
+
+		    return data;
+    }
+
+    print(getData());
+%>
+

@@ -1,0 +1,44 @@
+<%
+    //http://localhost:9763/portal/gadgets/git-commit-summary/api/gitCommitSummary.jag
+    function getDataSeries(){
+
+     var data =  [{
+                      name: 'Commits',
+                      data: [5, 3, 4, 7, 9]
+                  }]
+
+      return data;
+
+    }
+
+
+    var dataWithOptions = {
+                              chart: {
+                                  type: 'bar'
+                              },
+                              title: {
+                                  text: ''
+                              },
+                              xAxis: {
+                                  categories: ['Kishanthan', 'Sameera', 'Contributor 2', 'Contributor 3', 'Contributor 4']
+                              },
+                              yAxis: {
+                                  min: 0,
+                                  title: {
+                                      text: 'No of Commits'
+                                  }
+                              },
+                              legend: {
+                                  backgroundColor: '#FFFFFF',
+                                  reversed: true
+                              },
+                              plotOptions: {
+                                  series: {
+                                      stacking: 'normal'
+                                  }
+                              },
+                                  series: getDataSeries()
+                          }
+    print(dataWithOptions);
+%>
+

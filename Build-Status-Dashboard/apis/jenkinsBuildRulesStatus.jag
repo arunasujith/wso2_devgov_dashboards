@@ -1,0 +1,92 @@
+<%
+	//var bambooURL = request.getParameter("jenkinsID");
+
+	include("db.jag");
+
+	var jenkinsURL = request.getParameter("jenkinsURL");
+
+	var project_ID;
+	if(jenkinsURL != null){
+		if(jenkinsURL.substring(jenkinsURL.lastIndexOf("/") , jenkinsURL.length) == '/'){
+			jenkinsURL = jenkinsURL.substring(0 , jenkinsURL.length - 1);
+		}
+		project_ID = jenkinsURL.substring(jenkinsURL.lastIndexOf("/")+1,jenkinsURL.length);
+	}
+	
+// payload_totalRuleCount | payload_executedRuleCount | payload_inactiveRuleCount | payload_excludedRuleCount | payload_mavenVersionIncompatibleRuleCount | payload_skippedExplicitRuleCount |
+
+	function getRulesData(){
+
+		var results;
+		if(project_ID != null){
+ 
+			var query1 = "SELECT payload_planName,payload_buildNumber  FROM JenkinsSummary WHERE payload_planName='"+project_ID+"';";
+	
+
+			var db = getDatabaseConnection();
+		
+			try{
+				results = db.query(query1);
+				//print(results);
+				var planID = results[0].payload_planName;
+				var buildNUmber = results[0].payload_buildNumber; //******************************** Create the payload_reportID
+				var planBuildNumber = planID+"-"+buildNUmber;
+
+				var query2  ="SELECT * FROM JenkinsBuildRulesStatsSummary WHERE payload_buildID='"+planBuildNumber+"' ;";
+				results = db.query(query2);
+	
+			}
+			catch(e){
+				print(e.toString());
+			}
+			finally{
+				db.close();
+			}
+
+		}
+		return results;
+	}
+
+
+
+ 	function getData(){
+
+		var results = getRulesData();
+		if(results == null){
+		
+			return null;
+		}
+		var data =[ [
+						{label: 'Executed', color:'#009100', data: [[1,parseFloat(results[0].payload_executedRuleCount)]]},
+						{label: 'Expicit Skipped', color:'#910000', data: [[2,parseFloat(results[0].payload_skippedExplicitRuleCount)]]},
+						{label: 'Inactive', color:'#009191', data: [[3,parseFloat(results[0].payload_inactiveRuleCount)]]},
+						{label: 'Maven Version Incompatible', color:'#000091', data: [[4,parseFloat(results[0].payload_mavenVersionIncompatibleRuleCount)]]},
+						{label: 'Excluded', color:'#000000', data: [[5,parseFloat(results[0].payload_excludedRuleCount)]]},
+					]];
+
+		return data;
+	}
+
+	var options = {
+						series: {
+							stack: 1,
+							bars: {
+								show: true,
+								barWidth: 0.3,
+								fill:1
+							}
+						},
+						xaxis: {
+							ticks: [[1,'Executed'],[2,'Skipped'],[3,'Inactive'],[4,'Incompatible'],[5,'Excluded']]
+						},
+		    			grid: {
+		            			hoverable: true}
+				  };
+	function labelFormatter(label, series) {
+		return "<div style='font-size:8pt; text-align:center; padding:2px; color:white;'>" + label + "<br/>" + Math.round(series.percent) + "%</div>";
+	}
+
+
+
+   print({'content':getData(),'options':options});
+%>

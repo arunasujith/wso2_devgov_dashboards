@@ -1,0 +1,112 @@
+<%
+
+	var bambooURL = request.getParameter("bambooURL");
+
+	var project_ID;
+	if(bambooURL != null){
+		 project_ID = bambooURL.substring(bambooURL.lastIndexOf("/")+1,bambooURL.length);
+	}
+
+	function getPlan(){
+	
+		var buildPlan;
+
+		if(project_ID == null){
+			return buildPlan;
+		}
+		
+		var query1  ="SELECT * FROM BambooSummary WHERE payload_projectID='"+project_ID+"';";
+ 
+		
+		config = {};
+		var db = new Database("jdbc:mysql://localhost:3306/greg", "root", "123", config);
+
+		try{
+			var results = db.query(query1);
+			buildPlan 	=  	results[0].payload_planID;
+	
+		}
+		catch(e){
+			print(e.toString());
+		}
+		finally{
+			db.close();
+		}
+
+		return buildPlan;
+	}
+	
+
+    function getData(){
+
+		var successRate , failureRate ;
+
+		if(project_ID == null){
+			successRate =0;
+			failureRate =0;
+		}
+		else{
+
+			var query1  ="SELECT * FROM BambooSummary WHERE payload_projectID='"+project_ID+"';";
+		
+
+			config = {};
+			var db = new Database("jdbc:mysql://localhost:3306/greg", "root", "123", config);
+
+			try{
+				var results = db.query(query1);
+				buildPlan 	=  	results[0].payload_planID;
+				successRate	= 	results[0].payload_successRate;
+			
+				failureRate =	100 - successRate
+		
+			}
+			catch(e){
+				print(e.toString());
+			}
+			finally{
+				db.close();
+			}
+		}
+ 
+		var data =  [
+				{
+					"series0" : {"color" : "#8bbc21", "label" : "Passed", "data" : parseFloat(successRate)}, 
+					"series1" : {"color" : "#910000", "label" : "Failed", "data" : parseFloat(failureRate)}
+				}
+
+			    ] 
+
+		return data;
+	}
+
+	var options = {
+		   series: {
+			pie: {
+			    show: true
+			}
+		    },
+		    legend: {
+			show: false
+		    },
+		    	grid: {
+				hoverable: true
+			},
+			tooltip: true,
+			tooltipOpts: {
+				content: "%p.0%, %s",
+				shifts: {
+					x: 20,
+					y: 0
+				},
+				defaultTheme: true
+			}
+	};
+	function labelFormatter(label, series) {
+		return "<div style='font-size:8pt; text-align:center; padding:2px; color:white;'>" + label + "<br/>" + Math.round(series.percent) + "%</div>";
+	}
+
+
+
+   print({'content':getData(),'options':options});
+%>

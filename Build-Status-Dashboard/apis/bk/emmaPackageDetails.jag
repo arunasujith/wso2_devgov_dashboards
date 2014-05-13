@@ -1,0 +1,76 @@
+<%
+    //http://localhost:9763/portal/gadgets/git-commit-details/git-commit-details.xml
+
+	var project_ID = request.getParameter("bambooID");
+             
+	function getPackagesData(){
+
+		var results;
+		if(project_ID != null){
+ 
+			var query1 = "SELECT payload_planID,payload_buildNumber  FROM BambooSummary WHERE payload_projectID='"+project_ID+"';";
+			var reportID , noOfPackages , noOfClasses, noOfMethods, noOfBlocks, noOfLines , noOfFiles;
+			
+
+			config = {};
+			var db = new Database("jdbc:mysql://localhost:3306/greg", "root", "123", config);
+		
+			try{
+				results = db.query(query1);
+				var planID = results[0].payload_planID;
+				var buildNUmber = results[0].payload_buildNumber; //******************************** Create the payload_reportID
+				var planBuildNumber = planID+"-"+buildNUmber;
+
+				var query2  ="SELECT payload_packageName, payload_classCoverage, payload_methodCoverage ,payload_blockCoverage , payload_lineCoverage FROM BambooEmmaSummary WHERE payload_reportID='"+planBuildNumber+"' ;";
+				results = db.query(query2);
+	
+			}
+			catch(e){
+				print(e.toString());
+			}
+			finally{
+				db.close();
+			}
+
+		}
+		return results;
+	}
+
+	function getFormatteddData(){
+		var allPackages= [];
+		var results =  getPackagesData();
+		
+		if(results != null){
+			for(var i=0 ; i < results.length ; i++){
+				var singlePackage = [];
+				singlePackage.push(results[i].payload_packageName);
+				singlePackage.push(results[i].payload_classCoverage);
+				singlePackage.push(results[i].payload_methodCoverage);
+				singlePackage.push(results[i].payload_blockCoverage);
+				singlePackage.push(results[i].payload_lineCoverage);
+
+				allPackages.push(singlePackage);
+			}
+		}
+		//print(allCommits);
+		return allPackages;
+	}
+
+    function getData(){
+	 	var data  ={
+				"aaData": getFormatteddData(),
+				"aoColumns": [
+					{ "sTitle": "Package Name" },
+					{ "sTitle": "Class Coverage" },
+					{ "sTitle": "Method Coverage" },
+					{ "sTitle": "Block Coverage" },
+					{ "sTitle": "Line Coverage" }
+				]
+				}
+
+		    return data;
+    }
+
+    print(getData());
+%>
+

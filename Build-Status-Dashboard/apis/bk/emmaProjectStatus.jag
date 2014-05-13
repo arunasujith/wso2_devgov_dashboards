@@ -1,0 +1,83 @@
+<%
+    //http://localhost:9763/portal/gadgets/git-project-summary/git-project-summary.xml
+	
+	var project_ID = request.getParameter("bambooID");
+
+    function getData(){
+
+		var reportID , noOfPackages , noOfClasses, noOfMethods, noOfBlocks, noOfLines , noOfFiles;
+	
+		if(project_ID != null){
+
+			var query1 = "SELECT payload_planID,payload_buildNumber  FROM BambooSummary WHERE payload_projectID='"+project_ID+"';";
+		
+			var results;
+
+			config = {};
+			var db = new Database("jdbc:mysql://localhost:3306/greg", "root", "123", config);
+		
+			try{
+				results = db.query(query1);
+				var planID = results[0].payload_planID;
+				var buildNUmber = results[0].payload_buildNumber; //******************************** Create the payload_reportID
+				var planBuildNumber = planID+"-"+buildNUmber;
+
+				var query2  ="SELECT payload_reportID, payload_numberOfPackages, payload_numberOfClasses ,payload_numberOfMethods ,payload_numberOfBlocks,payload_numberOfLines, payload_numberOfFiles   FROM BambooEmmaSummary WHERE payload_reportID='"+planBuildNumber+"' LIMIT 1 ;";
+				results = db.query(query2);
+
+						
+				reportID 		= 	results[0].payload_reportID;
+				noOfPackages 	= 	results[0].payload_numberOfPackages;
+				noOfClasses 	= 	results[0].payload_numberOfClasses;
+				noOfMethods 	= 	results[0].payload_numberOfMethods;
+				noOfBlocks 		= 	results[0].payload_numberOfBlocks;
+				noOfLines 		= 	results[0].payload_numberOfLines;
+				noOfFiles 		= 	results[0].payload_numberOfFiles;
+		 
+			}
+			catch(e){
+				print(e.toString());
+			}
+			finally{
+				db.close();
+			}
+
+		}
+		
+
+	 	var data  = [
+				{
+		                    	key: 'Emma Report ID',
+		                    	value: reportID
+		                	},
+				{
+		                    	key: 'Total No Of Packages',
+		                    	value: noOfPackages
+		                	},
+				{
+		                    	key: 'Total No of Classes',
+		                    	value: noOfClasses
+		                	},
+				{
+		                    	key: 'Total No of Methods',
+		                    	value: noOfMethods
+		                	},
+				{
+		                    	key: 'Total No of Blocks',
+		                    	value: noOfBlocks
+		                	},
+				{
+		                    	key: 'Total No of Lines',
+		                    	value: noOfLines
+		                	},
+				{
+		                    	key: 'Total No of Files',
+		                    	value: noOfFiles
+		                	}
+				]
+		    return data;
+    }
+    
+    print(getData());
+%>
+

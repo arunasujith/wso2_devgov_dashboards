@@ -1,0 +1,112 @@
+<%
+
+	var project_ID = request.getParameter("bambooID");
+
+	function getPlan(){
+	
+		var buildPlan;
+
+		if(project_ID == null){
+			return buildPlan;
+		}
+		
+		var query1  ="SELECT * FROM BambooSummary WHERE payload_projectID='"+project_ID+"';";
+ 
+		
+		config = {};
+		var db = new Database("jdbc:mysql://localhost:3306/greg", "root", "123", config);
+
+		try{
+			var results = db.query(query1);
+			buildPlan 	=  	results[0].payload_planID;
+	
+		}
+		catch(e){
+			print(e.toString());
+		}
+		finally{
+			db.close();
+		}
+
+		return buildPlan;
+	}
+	
+
+    function getData(){
+
+		var successRate , failureRate ;
+
+		if(project_ID == null){
+			successRate =0;
+			failureRate =0;
+		}
+		else{
+
+			var query1  ="SELECT * FROM BambooSummary WHERE payload_projectID='"+project_ID+"';";
+		
+
+			config = {};
+			var db = new Database("jdbc:mysql://localhost:3306/greg", "root", "123", config);
+
+			try{
+				var results = db.query(query1);
+				buildPlan 	=  	results[0].payload_planID;
+				successRate	= 	results[0].payload_successRate;
+			
+				failureRate =	100 - successRate
+		
+			}
+			catch(e){
+				print(e.toString());
+			}
+			finally{
+				db.close();
+			}
+		}
+        var data =  [
+                         ['Success',   parseInt(successRate)],
+                         {
+                             name: 'Failed',
+                             y: parseInt(failureRate),
+                             sliced: true,
+                             selected: true
+                         }
+                      ]
+
+         return data;
+    }
+
+ var data = {
+            chart: {
+
+                plotBackgroundColor: null,
+                plotBorderWidth: null,
+                plotShadow: false
+            },
+            title: {
+                text: 'Build Success Rate For Plan - '+getPlan()
+            },
+            tooltip: {
+                pointFormat: '{series.name}: <b>{point.percentage:.1f}%</b>'
+            },
+            plotOptions: {
+                pie: {
+                    allowPointSelect: true,
+                    cursor: 'pointer',
+                    dataLabels: {
+                        enabled: true,
+                        color: '#000000',
+                        connectorColor: '#000000',
+                        format: '<b>{point.name}</b>: {point.percentage:.1f} %'
+                    }
+                }
+            },
+            series: [{
+                type: 'pie',
+                name: 'Builds',
+                data:  getData()
+
+            }]
+        }
+   print(data);
+%>

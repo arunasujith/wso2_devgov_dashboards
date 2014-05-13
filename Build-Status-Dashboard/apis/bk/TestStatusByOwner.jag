@@ -1,0 +1,70 @@
+<%
+    function getNames(){
+
+        var data =  ['Kavith', 'Pubudu', 'Jayanga','Sajith', 'Aruna', 'Uvindra'];
+
+        return data;
+    }
+
+    function getData(){
+
+        var data  = [
+                        {
+                            name: 'In Progress',
+                            data: [49, 71, 106, 129, 144, 176]
+
+                        }, {
+                            name: 'Not Executed',
+                            data: [83, 78, 98, 93, 106, 84]
+
+                        }, {
+                            name: 'Passed',
+                            data: [48, 38, 39, 41, 47, 48]
+
+                        }, {
+                            name: 'Failed',
+                            data: [42, 33, 34, 39, 52, 75]
+
+                        }
+                    ]
+        return data;
+    }
+    var dataWithOptions =  {
+                chart: {
+                    type: 'column'
+                },
+                title: {
+                    text: ''
+                },
+                subtitle: {
+                    text: ''
+                },
+                xAxis: {
+                    categories:getNames()
+                },
+                yAxis: {
+                    min: 0,
+                    title: {
+                        text: 'No of test cases'
+                    }
+                },
+                tooltip: {
+                    headerFormat: '<span style="font-size:12px">{point.key}</span><table>',
+                    pointFormat: '<tr><td style="color:{series.color};padding:0">{series.name}: </td>' +
+                        '<td style="padding:0"><b>{point.y}</b></td></tr>',
+                    footerFormat: '</table>',
+                    shared: true,
+                    useHTML: true
+                },
+                plotOptions: {
+                    column: {
+                        pointPadding: 0.2,
+                        borderWidth: 0
+                    }
+                },
+                series:getData()
+            }
+
+    print(dataWithOptions);
+%>
+

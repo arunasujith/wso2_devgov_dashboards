@@ -1,0 +1,687 @@
+<%
+var user = require('/modules/user.js').current();
+if (!user) {
+    response.sendRedirect('/Build-Status-Dashboard/login?'+request.getQueryString());
+}
+%>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Build Status Dashboard | C5 Dev Governance</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <!-- Le styles -->
+    <!-- END imports needed for gadget rendering -->
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+
+    <link href="css/bootstrap-responsive.min.css" rel="stylesheet">
+    <link href="css/font-awesome.min.css" rel="stylesheet">
+    <link href="css/font-awesome-ie7.min.css" rel="stylesheet">
+
+
+    <link rel="stylesheet" type="text/css" href="css/navigation.css"/>
+    <link rel="stylesheet" type="text/css" href="css/jquery.gridster.min.css"/>
+    <link rel="stylesheet" type="text/css" href="css/portal-dashboard-designer.css"/>
+    <link rel="stylesheet" type="text/css" href="css/styles.css">
+    <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
+    <!--[if lt IE 9]>
+    <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <script src="js/respond.min.js"></script>
+    <![endif]-->
+
+    <!-- Fav and touch icons -->
+    <link rel="shortcut icon" href="/portal/themes/portal/favicon.ico">
+    <link rel="apple-touch-icon-precomposed" sizes="144x144"
+          href="img/apple-touch-icon-144-precomposed.png">
+    <link rel="apple-touch-icon-precomposed" sizes="114x114"
+          href="img/apple-touch-icon-114-precomposed.png">
+    <link rel="apple-touch-icon-precomposed" sizes="72x72"
+          href="img/apple-touch-icon-72-precomposed.png">
+    <link rel="apple-touch-icon-precomposed" href="img/apple-touch-icon-57-precomposed.png">
+
+    
+</head>
+
+<body>
+    <div class="navbar navbar-inverse navbar-fixed-top">
+
+	<div class="navbar-inner">
+
+		<div class="container-fluid">
+
+			<a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse"> <span class="icon-bar"></span> <span class="icon-bar"></span> <span class="icon-bar"></span> </a>
+			
+			<a class="brand" href="#"></a>
+			
+
+			
+
+			<div class="nav-collapse collapse">
+				<ul class="nav pull-right">
+
+					<li class="nav-separator">
+
+						<a href="/store?user=<%=session.get('LOGGED_IN_USER')%>" target="_blank"><i class="icon-shopping-cart"></i> Store</a>
+
+					</li>
+
+					
+					<li>
+
+						<a class="dropdown-toggle" data-toggle="dropdown" href="#"><i class="icon-user"></i> <%= session.get("LOGGED_IN_USER") %> <b class="caret"></b></a>
+						<ul class="dropdown-menu dropdown-account" role="menu" aria-labelledby="dLabel">
+							<li>
+
+								
+								<a href="/Build-Status-Dashboard/logout.jag"><i class="icon-signout"></i> Sign out</a>
+								
+
+							</li>
+
+						</ul>
+
+					</li>
+					
+				</ul>
+			</div>
+			<!--/.nav-collapse -->
+		</div>
+	</div>
+	
+	<div class="navbar-inner sub-navbar-designer">
+
+		<div class="container-fluid">
+
+			<a data-target=".nav-collapse" data-toggle="collapse" class="btn btn-navbar"> <span class="icon-bar"></span> <span class="icon-bar"></span> <span class="icon-bar"></span> </a>
+
+			<div class="row-fluid">
+
+				<div class="span5">
+					<input id="inp-designer-title" type="text" value="Build-Status-Dashboard">
+				</div>
+				<div class="span7">
+					<div class="nav-collapse collapse">
+						<ul class="nav pull-right">
+
+							<li class="dropdown">
+								<a href="#" data-toggle="dropdown" class="dropdown-toggle"><i class="icon-plus"></i> Add Block <b class="caret"></b></a>
+								<ul class="dropdown-menu dropdown-share">
+									<form>
+										<li>
+											<h4>Define gadget size in grid</h4>
+
+										</li>
+										<li>
+
+											<div id="dummy-gadget-wrapper">
+												<div id="dummy-gadget-container" class="ui-widget-content">
+													<div id="dummy-gadget"  class="ui-widget-content">
+														<div id="dummy-size">
+															1x1
+														</div>
+													</div>
+												</div>
+											</div>
+										</li>
+
+										<li>
+											<button id="btn-add-dummy-gadget" class="btn btn-primary">
+												Add Empty Block
+											</button>
+										</li>
+									</form>
+								</ul>
+
+							</li>
+
+							<li id="btn-save">
+								<a href="#"><i class="icon-save"></i> Save</a>
+							</li>
+							<li>
+								<a id="btn-exit-editor" href="#"><i class="icon-signout"></i> Exit Editor</a>
+							</li>
+
+						</ul>
+					</div>
+				</div>
+			</div>
+
+			<!--/.nav-collapse -->
+		</div>
+	</div>
+	
+	<div class="navbar-inner sub-navbar-designer-view">
+
+		<div class="container-fluid">
+
+			<a data-target=".nav-collapse" data-toggle="collapse" class="btn btn-navbar"> <span class="icon-bar"></span> <span class="icon-bar"></span> <span class="icon-bar"></span> </a>
+
+			<div class="row-fluid">
+
+				<div class="span5">
+					
+				</div>
+				<div class="span7">
+					<div class="nav-collapse collapse">
+						<ul class="nav pull-right">
+
+							<li class="li-edit-dashboard">
+								<a href="#" id="btn-exit-view" data-toggle="dropdown" class="dropdown-toggle float-left-link"><i class="icon-magic"></i> Personalize</a>
+								
+							</li>
+						</ul>
+					</div>
+				</div>
+			</div>
+
+			<!--/.nav-collapse -->
+		</div>
+	</div>
+
+	
+</div>
+
+
+<div class="container-fluid">
+    
+    <div class="row-fluid">
+
+        <div class="span12">
+<input type="hidden" value="design" id="inp-view-mode" />
+<input type="hidden" value="Build-Status-Dashboard" id="inp-dashboard" />
+<!--iframe style="display: none;height: 0;width: 0;" src="http://ec2-54-205-154-153.compute-1.amazonaws.com:9963/store/hidden-logger.jag?user=<%=session.get('LOGGED_IN_USER')%>"></iframe-->
+
+<div id="gridster-cont" class="container-fluid">
+	<div id="dashboardName"><i class="icon-th-large"></i> <span></span></div>
+	<div class="layouts_grid" id="layouts_grid">
+		<input type="hidden" id="inp-layout" value="grid">
+		<ul>
+			<div id="grid-guides"></div>
+            
+			
+            <li class="layout_block static" data-sizey="1" data-sizex="2" data-col="1" data-row="1"
+                data-url="" data-wid="297" data-prefs="{}" data-title="">
+                <div class="grid_header">
+           			<h3></h3>
+            		<span class="grid_header_controls">
+                		<a class="show-widget-pref" data-collapse="true"><i class="icon-cog"></i></a>
+                		<a class="expand-widget"><i class="icon-resize-full"></i></a>
+                		<a class="shrink-widget"><i class="icon-resize-small"></i></a>
+                		<a class="close-widget" href="#"><i class="icon-remove"></i></a>
+            		</span>
+        		</div>
+        		<div class="gadget-pref-cont">
+        	
+        		</div>
+                
+                
+                 <div class="designer-placeholder">
+
+        		</div>
+
+       			<button class="btn btn-add-gadget">Add Gadget</button>
+         		
+            </li>
+            
+            <li class="layout_block static" data-sizey="1" data-sizex="2" data-col="3" data-row="1"
+                data-url="" data-wid="298" data-prefs="{}" data-title="">
+                <div class="grid_header">
+           			<h3></h3>
+            		<span class="grid_header_controls">
+                		<a class="show-widget-pref" data-collapse="true"><i class="icon-cog"></i></a>
+                		<a class="expand-widget"><i class="icon-resize-full"></i></a>
+                		<a class="shrink-widget"><i class="icon-resize-small"></i></a>
+                		<a class="close-widget" href="#"><i class="icon-remove"></i></a>
+            		</span>
+        		</div>
+        		<div class="gadget-pref-cont">
+        	
+        		</div>
+                
+                
+                 <div class="designer-placeholder">
+
+        		</div>
+
+       			<button class="btn btn-add-gadget">Add Gadget</button>
+         		
+            </li>
+            
+            <li class="layout_block static" data-sizey="1" data-sizex="1" data-col="5" data-row="1"
+                data-url="" data-wid="299" data-prefs="{}" data-title="">
+                <div class="grid_header">
+           			<h3></h3>
+            		<span class="grid_header_controls">
+                		<a class="show-widget-pref" data-collapse="true"><i class="icon-cog"></i></a>
+                		<a class="expand-widget"><i class="icon-resize-full"></i></a>
+                		<a class="shrink-widget"><i class="icon-resize-small"></i></a>
+                		<a class="close-widget" href="#"><i class="icon-remove"></i></a>
+            		</span>
+        		</div>
+        		<div class="gadget-pref-cont">
+        	
+        		</div>
+                
+                
+                 <div class="designer-placeholder">
+
+        		</div>
+
+       			<button class="btn btn-add-gadget">Add Gadget</button>
+         		
+            </li>
+            
+            <li class="layout_block static" data-sizey="1" data-sizex="1" data-col="6" data-row="1"
+                data-url="" data-wid="300" data-prefs="{}" data-title="">
+                <div class="grid_header">
+           			<h3></h3>
+            		<span class="grid_header_controls">
+                		<a class="show-widget-pref" data-collapse="true"><i class="icon-cog"></i></a>
+                		<a class="expand-widget"><i class="icon-resize-full"></i></a>
+                		<a class="shrink-widget"><i class="icon-resize-small"></i></a>
+                		<a class="close-widget" href="#"><i class="icon-remove"></i></a>
+            		</span>
+        		</div>
+        		<div class="gadget-pref-cont">
+        	
+        		</div>
+                
+                
+                 <div class="designer-placeholder">
+
+        		</div>
+
+       			<button class="btn btn-add-gadget">Add Gadget</button>
+         		
+            </li>
+            
+            <li class="layout_block " data-sizey="2" data-sizex="6" data-col="1" data-row="12"
+                data-url="http://ec2-54-83-33-151.compute-1.amazonaws.com:9963/portal/gadgets/emma-test-coverage/emma-test-coverage.xml" data-wid="301" data-prefs="{}" data-title="Emma Test Coverage">
+                <div class="grid_header">
+           			<h3></h3>
+            		<span class="grid_header_controls">
+                		<a class="show-widget-pref" data-collapse="true"><i class="icon-cog"></i></a>
+                		<a class="expand-widget"><i class="icon-resize-full"></i></a>
+                		<a class="shrink-widget"><i class="icon-resize-small"></i></a>
+                		<a class="close-widget" href="#"><i class="icon-remove"></i></a>
+            		</span>
+        		</div>
+        		<div class="gadget-pref-cont">
+        	
+        		</div>
+                
+
+                <div class="add-gadget-item">
+
+                </div>
+                
+                
+            </li>
+            
+            <li class="layout_block " data-sizey="2" data-sizex="2" data-col="1" data-row="10"
+                data-url="http://ec2-54-83-33-151.compute-1.amazonaws.com:9963/portal/gadgets/emma-project-summary/emma-project-summary.xml" data-wid="302" data-prefs="{}" data-title="Emma Coverage Status">
+                <div class="grid_header">
+           			<h3></h3>
+            		<span class="grid_header_controls">
+                		<a class="show-widget-pref" data-collapse="true"><i class="icon-cog"></i></a>
+                		<a class="expand-widget"><i class="icon-resize-full"></i></a>
+                		<a class="shrink-widget"><i class="icon-resize-small"></i></a>
+                		<a class="close-widget" href="#"><i class="icon-remove"></i></a>
+            		</span>
+        		</div>
+        		<div class="gadget-pref-cont">
+        	
+        		</div>
+                
+
+                <div class="add-gadget-item">
+
+                </div>
+                
+                
+            </li>
+            
+            <li class="layout_block " data-sizey="2" data-sizex="4" data-col="3" data-row="10"
+                data-url="http://ec2-54-83-33-151.compute-1.amazonaws.com:9963/portal/gadgets/emma-package-details/emma-package-details.xml" data-wid="303" data-prefs="{}" data-title="Emma Package Details">
+                <div class="grid_header">
+           			<h3></h3>
+            		<span class="grid_header_controls">
+                		<a class="show-widget-pref" data-collapse="true"><i class="icon-cog"></i></a>
+                		<a class="expand-widget"><i class="icon-resize-full"></i></a>
+                		<a class="shrink-widget"><i class="icon-resize-small"></i></a>
+                		<a class="close-widget" href="#"><i class="icon-remove"></i></a>
+            		</span>
+        		</div>
+        		<div class="gadget-pref-cont">
+        	
+        		</div>
+                
+
+                <div class="add-gadget-item">
+
+                </div>
+                
+                
+            </li>
+            
+            <li class="layout_block " data-sizey="2" data-sizex="6" data-col="1" data-row="8"
+                data-url="http://ec2-54-83-33-151.compute-1.amazonaws.com:9963/portal/gadgets/bamboo-commit-details/bamboo-commit-details.xml" data-wid="304" data-prefs="{}" data-title="Commits of Latest Build">
+                <div class="grid_header">
+           			<h3></h3>
+            		<span class="grid_header_controls">
+                		<a class="show-widget-pref" data-collapse="true"><i class="icon-cog"></i></a>
+                		<a class="expand-widget"><i class="icon-resize-full"></i></a>
+                		<a class="shrink-widget"><i class="icon-resize-small"></i></a>
+                		<a class="close-widget" href="#"><i class="icon-remove"></i></a>
+            		</span>
+        		</div>
+        		<div class="gadget-pref-cont">
+        	
+        		</div>
+                
+
+                <div class="add-gadget-item">
+
+                </div>
+                
+                
+            </li>
+            
+            <li class="layout_block " data-sizey="2" data-sizex="3" data-col="4" data-row="6"
+                data-url="http://ec2-54-83-33-151.compute-1.amazonaws.com:9963/portal/gadgets/bamboo-build-status/bamboo-build-status.xml" data-wid="305" data-prefs="{}" data-title="Bamboo Build Success Rate">
+                <div class="grid_header">
+           			<h3></h3>
+            		<span class="grid_header_controls">
+                		<a class="show-widget-pref" data-collapse="true"><i class="icon-cog"></i></a>
+                		<a class="expand-widget"><i class="icon-resize-full"></i></a>
+                		<a class="shrink-widget"><i class="icon-resize-small"></i></a>
+                		<a class="close-widget" href="#"><i class="icon-remove"></i></a>
+            		</span>
+        		</div>
+        		<div class="gadget-pref-cont">
+        	
+        		</div>
+                
+
+                <div class="add-gadget-item">
+
+                </div>
+                
+                
+            </li>
+            
+            <li class="layout_block " data-sizey="2" data-sizex="3" data-col="1" data-row="6"
+                data-url="http://ec2-54-83-33-151.compute-1.amazonaws.com:9963/portal/gadgets/bamboo-project-summary-new/bamboo-project-summary-new.xml" data-wid="306" data-prefs="{}" data-title="Bamboo Latest Build Status">
+                <div class="grid_header">
+           			<h3></h3>
+            		<span class="grid_header_controls">
+                		<a class="show-widget-pref" data-collapse="true"><i class="icon-cog"></i></a>
+                		<a class="expand-widget"><i class="icon-resize-full"></i></a>
+                		<a class="shrink-widget"><i class="icon-resize-small"></i></a>
+                		<a class="close-widget" href="#"><i class="icon-remove"></i></a>
+            		</span>
+        		</div>
+        		<div class="gadget-pref-cont">
+        	
+        		</div>
+                
+
+                <div class="add-gadget-item">
+
+                </div>
+                
+                
+            </li>
+            
+            <li class="layout_block " data-sizey="2" data-sizex="4" data-col="1" data-row="4"
+                data-url="http://ec2-54-83-33-151.compute-1.amazonaws.com:9963/portal/gadgets/git-commit-details/git-commit-details.xml" data-wid="307" data-prefs="{}" data-title="Details of commits">
+                <div class="grid_header">
+           			<h3></h3>
+            		<span class="grid_header_controls">
+                		<a class="show-widget-pref" data-collapse="true"><i class="icon-cog"></i></a>
+                		<a class="expand-widget"><i class="icon-resize-full"></i></a>
+                		<a class="shrink-widget"><i class="icon-resize-small"></i></a>
+                		<a class="close-widget" href="#"><i class="icon-remove"></i></a>
+            		</span>
+        		</div>
+        		<div class="gadget-pref-cont">
+        	
+        		</div>
+                
+
+                <div class="add-gadget-item">
+
+                </div>
+                
+                
+            </li>
+            
+            <li class="layout_block " data-sizey="2" data-sizex="2" data-col="5" data-row="4"
+                data-url="http://ec2-54-83-33-151.compute-1.amazonaws.com:9963/portal/gadgets/top-contributors/top-contributors.xml" data-wid="308" data-prefs="{}" data-title="Top five contributors">
+                <div class="grid_header">
+           			<h3></h3>
+            		<span class="grid_header_controls">
+                		<a class="show-widget-pref" data-collapse="true"><i class="icon-cog"></i></a>
+                		<a class="expand-widget"><i class="icon-resize-full"></i></a>
+                		<a class="shrink-widget"><i class="icon-resize-small"></i></a>
+                		<a class="close-widget" href="#"><i class="icon-remove"></i></a>
+            		</span>
+        		</div>
+        		<div class="gadget-pref-cont">
+        	
+        		</div>
+                
+
+                <div class="add-gadget-item">
+
+                </div>
+                
+                
+            </li>
+            
+            <li class="layout_block " data-sizey="2" data-sizex="4" data-col="3" data-row="2"
+                data-url="http://ec2-54-83-33-151.compute-1.amazonaws.com:9963/portal/gadgets/git-commit-summary/git-commit-summary.xml" data-wid="309" data-prefs="{}" data-title="Summary of commits">
+                <div class="grid_header">
+           			<h3></h3>
+            		<span class="grid_header_controls">
+                		<a class="show-widget-pref" data-collapse="true"><i class="icon-cog"></i></a>
+                		<a class="expand-widget"><i class="icon-resize-full"></i></a>
+                		<a class="shrink-widget"><i class="icon-resize-small"></i></a>
+                		<a class="close-widget" href="#"><i class="icon-remove"></i></a>
+            		</span>
+        		</div>
+        		<div class="gadget-pref-cont">
+        	
+        		</div>
+                
+
+                <div class="add-gadget-item">
+
+                </div>
+                
+                
+            </li>
+            
+            <li class="layout_block " data-sizey="2" data-sizex="2" data-col="1" data-row="2"
+                data-url="http://ec2-54-83-33-151.compute-1.amazonaws.com:9963/portal/gadgets/git-project-summary/git-project-summary.xml" data-wid="310" data-prefs="{}" data-title="Summary of the project">
+                <div class="grid_header">
+           			<h3></h3>
+            		<span class="grid_header_controls">
+                		<a class="show-widget-pref" data-collapse="true"><i class="icon-cog"></i></a>
+                		<a class="expand-widget"><i class="icon-resize-full"></i></a>
+                		<a class="shrink-widget"><i class="icon-resize-small"></i></a>
+                		<a class="close-widget" href="#"><i class="icon-remove"></i></a>
+            		</span>
+        		</div>
+        		<div class="gadget-pref-cont">
+        	
+        		</div>
+                
+
+                <div class="add-gadget-item">
+
+                </div>
+                
+                
+            </li>
+            
+
+					
+			
+		</ul>
+	</div>
+
+</div>
+<!-- /container -->
+
+
+<!-- Modal -->
+<div id="modal-add-gadget" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="publishModalLabel" aria-hidden="true">
+	<button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+		<i class="icon-remove"></i>
+	</button>
+	<div id="store-gadget-div"></div>
+
+</div>
+
+
+
+        </div>
+
+    </div>
+
+</div>
+
+<script id="widget-template" type="text/x-handlebars-template">
+	<li class="layout_block">
+		<div class="grid_header">
+            <input class="gadget-title-txt">
+            <span class="grid_header_controls">
+                <a class="show-widget-pref" data-collapse="true"><i class="icon-cog"></i></a>
+                <a class="expand-widget"><i class="icon-resize-full"></i></a>
+                <a class="shrink-widget"><i class="icon-resize-small"></i></a>
+                <a class="close-widget" href="#"><i class="icon-remove"></i></a>
+            </span>
+        </div>
+        <div class="gadget-pref-cont">
+        	
+        </div>
+		<div class="designer-placeholder">
+	
+		</div>
+		<div class="add-gadget-item">
+	
+		</div>
+		<button class="btn btn-add-gadget">Add Gadget</button>
+
+	</li>
+</script>
+
+<script id="widget-template2" type="text/x-handlebars-template">
+	<li class="layout_block" data-wid="{{wid}}" data-url="{{url}}" data-prefs="{{prefs}}">
+		<div class="grid_header">
+            <input class="gadget-title-txt">
+            <span class="grid_header_controls">
+                <a class="show-widget-pref" data-collapse="true"><i class="icon-cog"></i></a>
+                <a class="expand-widget"><i class="icon-resize-full"></i></a>
+                <a class="shrink-widget"><i class="icon-resize-small"></i></a>
+                <a class="close-widget" href="#"><i class="icon-remove"></i></a>
+            </span>
+        </div>
+        <div class="gadget-pref-cont">
+        	
+        </div>
+		<div class="add-gadget-item">
+	
+		</div>
+
+	</li>
+</script>
+
+<script id="widget-template-blank2" type="text/x-handlebars-template">
+	<li class="layout_block" data-url="{{url}}" data-row="{{y}}" data-col="{{x}}" data-sizex="{{width}}" data-sizey="{{height}}" data-wid="{{wid}}" data-prefs="{{prefs}}">
+		<div class="grid_header">
+            <input class="gadget-title-txt">
+            <span class="grid_header_controls">
+                <a class="show-widget-pref" data-collapse="true"><i class="icon-cog"></i></a>
+                <a class="expand-widget"><i class="icon-resize-full"></i></a>
+                <a class="shrink-widget"><i class="icon-resize-small"></i></a>
+                <a class="close-widget" href="#"><i class="icon-remove"></i></a>
+            </span>
+        </div>
+        <div class="gadget-pref-cont">
+        	
+        </div>
+		<div class="add-gadget-item">
+	
+		</div>
+	</li>
+</script>
+
+<!-- /container -->
+
+<!-- Le javascript
+================================================== -->
+<!-- Placed at the end of the document so the pages load faster -->
+<script src="js/jquery-1.8.3.min.js"></script>
+<script src="js/bootstrap.min.js"></script>
+<script src="js/navigation.js"></script>
+<script src="js/jquery-ui-1.10.1.custom.min.js"></script>
+<script src="js/jquery.gridster.with-extras.min.js"></script>
+<script src="js/handlebars.js"></script>
+<script src="js/shindig.js"></script>
+<script src="js/purl.js"></script>
+<script src="js/UESContainer.js"></script>
+<script src="js/portal-dashboard-designer.js"></script>
+
+<div class="modal hide fade" style=" background-color: white; border: 1px solid #999999; border-radius: 10px;box-shadow: 0 3px 7px rgba(0, 0, 0, 0.3);background-clip: padding-box;" id="loadingModal">
+ 
+  <div class="modal-body" style="">
+    <div style="text-align:center;">
+	<img src="img/ajax-loader.gif" alt="loading" /><br>
+	<p>Loading build reports. Please wait a few seconds.</p>    
+    </div>
+  </div>
+</div>
+<div id="errorModal"  class="modal hide fade" style=" background-color: white; border: 1px solid #999999; border-radius: 10px;box-shadow: 0 3px 7px rgba(0, 0, 0, 0.3);background-clip: padding-box;">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+        <h4 class="modal-title">Invalid Input Given</h4>
+      </div>
+      <div class="modal-body">
+        <p>In order to display build reports, git hub project ID and bamboo URL should be provided via query string.</p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+      </div>
+    </div><!-- /.modal-content -->
+  </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+<script>
+    var gitID = $.url().param('gitID');
+    var bambooURL = $.url().param('bambooURL');
+
+    if(!gitID || !bambooURL){
+	$('#errorModal').modal('show');
+    }else{
+	    UESContainer.renderGadget('store-gadget-div', "http://ec2-54-83-33-151.compute-1.amazonaws.com:9963/portal/gadgets/show-assets/show-assets.xml");
+	    $(window).load(function(){
+		$('#loadingModal').modal('show');
+	    });
+	    document.addEventListener("DOMContentLoaded", function(event) { console.log("DOM fully loaded and parsed"); })
+	     window.onload = function () {
+		setTimeout(
+			UESContainer.publish, 5000
+		);
+	    };
+    }
+</script>
+
+</body>
+</html>
+

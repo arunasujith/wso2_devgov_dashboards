@@ -1,0 +1,65 @@
+<%
+    //http://localhost:9763/portal/gadgets/git-project-summary/git-project-summary.xml
+
+
+	var git_ID = request.getParameter("gitID");
+
+    function getData(){
+
+	 	var query1  ="SELECT * FROM GitSummary WHERE payload_repositoryID='"+git_ID+"';";
+		var repositoryID ,ownerID, totalCommits , totalPullRequests , topContributor, lastCommitDateTime ;
+
+		config = {};
+		var db = new Database("jdbc:mysql://localhost:3306/greg", "root", "123", config);
+
+		try{
+			var results = db.query(query1);
+			
+			repositoryID = 	results[0].payload_repositoryID;
+			ownerID = 		results[0].payload_ownerID;
+			totalCommits = 	results[0].payload_totalNumberOfCommits;
+			totalPullRequests = results[0].payload_totalPullRequests;
+			topContributor = results[0].payload_topContributor;
+			lastCommitDateTime = results[0].payload_lastCommitDateTime;
+		
+		}
+		catch(e){
+			print(e.toString());
+		}
+		finally{
+			db.close();
+		}
+
+
+	 	var data  = [
+				{
+		                    	key: 'Github Repository ID',
+		                    	value: repositoryID
+		                	},
+				{
+		                    	key: 'Github Owner ID',
+		                    	value: ownerID
+		                	},
+				{
+		                    	key: 'Total No of Commits',
+		                    	value: totalCommits
+		                	},
+				{
+		                    	key: 'Total No of Pull Requests',
+		                    	value: totalPullRequests
+		                	},
+				{
+		                    	key: 'Top Contributor',
+		                    	value: topContributor
+		                	},
+				{
+		                    	key: 'Last Commit Date Time',
+		                    	value: lastCommitDateTime
+		                	}
+				]
+		    return data;
+    }
+    
+    print(getData());
+%>
+

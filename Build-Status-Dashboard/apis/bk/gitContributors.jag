@@ -1,0 +1,117 @@
+<%
+    //http://localhost:9763/portal/gadgets/git-commit-summary/api/gitCommitSummary.jag
+
+	var git_ID = request.getParameter("gitID");
+
+	function getMySQLData(){
+
+		var results;
+		if(git_ID != null){
+			var query1  ="SELECT * FROM GitCommittersSummary WHERE payload_repositoryID='"+git_ID+"' ORDER BY payload_numberofCommits DESC;";
+		
+
+			config = {};
+			var db = new Database("jdbc:mysql://localhost:3306/greg", "root", "123", config);
+		
+			try{
+				var results = db.query(query1);
+	
+			}
+			catch(e){
+				print(e.toString());
+			}
+			finally{
+				db.close();
+			}
+		}
+		return results;
+	}
+	
+	function getContributors(){
+		var results = getMySQLData();
+		var contributors = [];
+		if(results != null){
+			for(var i = 0 ; i < results.length ; i++){
+				if(i == 5){
+					break;			
+				}
+				contributors.push(results[i].payload_committerName);
+			}
+		}		
+		return contributors;
+	}
+
+	function getNumberOfCommits(){
+		var results = getMySQLData();
+		var commits = [];
+
+		if(results != null){
+			for(var i = 0 ; i < results.length ; i++){
+				if(i == 5){
+					break;			
+				}
+				commits.push(parseInt(results[i].payload_numberofCommits));
+			}
+		}
+		return commits;
+	}
+ 
+    var dataWithOptions =  {
+			   chart: {
+                type: 'bar'
+            },
+            title: {
+                text: 'All time github commits'
+            },
+            subtitle: {
+                text: git_ID
+            },
+            xAxis: {
+                categories: getContributors(),
+                title: {
+                    text: null
+                }
+            },
+            yAxis: {
+                min: 0,
+                title: {
+                    text: 'Number of Commits',
+                    align: 'high'
+                },
+                labels: {
+                    overflow: 'justify'
+                }
+            },
+            tooltip: {
+                valueSuffix: ''
+            },
+            plotOptions: {
+                bar: {
+                    dataLabels: {
+                        enabled: true
+                    }
+                }
+            },
+            legend: {
+                layout: 'vertical',
+                align: 'right',
+                verticalAlign: 'top',
+                x: -40,
+                y: 100,
+                floating: true,
+                borderWidth: 1,
+                backgroundColor: '#FFFFFF',
+                shadow: true
+            },
+            credits: {
+                enabled: false
+            },
+            series: [{
+                name: 'Number of Commits',
+                data: getNumberOfCommits()
+            }]
+     }
+
+    print(dataWithOptions);
+%>
+

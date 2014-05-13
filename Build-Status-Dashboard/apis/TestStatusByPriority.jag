@@ -1,0 +1,49 @@
+<%
+    function getDataSeries(){
+
+     var data =  [{
+                      name: 'High',
+                      data: [5, 3, 4, 7]
+                  }, {
+                      name: 'Medium',
+                      data: [2, 2, 3, 2]
+                  }, {
+                      name: 'Low',
+                      data: [3, 4, 4, 2]
+                  }]
+
+      return data;
+
+    }
+
+
+    var dataWithOptions = {
+                              chart: {
+                                  type: 'bar'
+                              },
+                              title: {
+                                  text: ''
+                              },
+                              xAxis: {
+                                  categories: ['Not Executed', 'In Progress', 'Passed', 'Failed']
+                              },
+                              yAxis: {
+                                  min: 0,
+                                  title: {
+                                      text: 'No of Test Cases'
+                                  }
+                              },
+                              legend: {
+                                  backgroundColor: '#FFFFFF',
+                                  reversed: true
+                              },
+                              plotOptions: {
+                                  series: {
+                                      stacking: 'normal'
+                                  }
+                              },
+                                  series: getDataSeries()
+                          }
+    print(dataWithOptions);
+%>
+

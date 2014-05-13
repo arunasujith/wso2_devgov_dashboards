@@ -1,0 +1,74 @@
+<%
+    //http://localhost:9763/portal/gadgets/git-project-summary/git-project-summary.xml
+	
+	var project_ID = request.getParameter("bambooID");
+
+    function getData(){
+
+		var projectID ,planName, planID , buildNUmber , buildDate, buildState , relativeBuildDate ;
+		
+		if(project_ID != null){
+
+
+		 	var query1  ="SELECT * FROM BambooSummary WHERE payload_projectID='"+project_ID+"';";
+
+
+			config = {};
+			var db = new Database("jdbc:mysql://localhost:3306/greg", "root", "123", config);
+
+			try{
+				var results = db.query(query1);
+
+				projectID 			= 	results[0].payload_projectID;
+				planName 			=	results[0].payload_planName;
+				planID 				= 	results[0].payload_planID;
+				buildNUmber 		= 	results[0].payload_buildNumber;
+				buildDate 			= 	results[0].payload_buildDate;
+				buildState 			= 	results[0].payload_buildState;
+				relativeBuildDate 	= 	results[0].payload_relativeBuildDate;
+		
+			}
+			catch(e){
+				print(e.toString());
+			}
+			finally{
+				db.close();
+			}
+
+		}
+	 	var data  = [
+				{
+		                    	key: 'Bamboo Project ID',
+		                    	value: projectID
+		                	},
+				{
+		                    	key: 'Bamboo Plan Name',
+		                    	value: planName
+		                	},
+				{
+		                    	key: 'Bamboo Plan ID',
+		                    	value: planID
+		                	},
+				{
+		                    	key: 'Bamboo Build Number',
+		                    	value: buildNUmber
+		                	},
+				{
+		                    	key: 'Bamboo Build Date',
+		                    	value: buildDate
+		                	},
+				{
+		                    	key: 'Bamboo Build State',
+		                    	value: buildState
+		                	},
+				{
+		                    	key: 'Bamboo Relative Build Date',
+		                    	value: relativeBuildDate
+		                	}
+				]
+		    return data;
+    }
+    
+    print(getData());
+%>
+

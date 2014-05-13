@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+    <Module>
+    <ModulePrefs title="Emma Test Coverage"
+                 author="WSO2 Gadget Server"
+                 height="230"
+                 scrolling="true"
+                 tags="charts,pie,visualization"
+                 description="Emma Test Coverage Reports">
+	<Require feature="pubsub-2">
+            <Param name="topics">
+                <![CDATA[
+			<Topic title="reqParam" name="req-param-channel"
+			description="Subscribes to request params channel" type="object"
+			subscribe="true"/>
+		]]>
+            </Param>
+        </Require>
+     </ModulePrefs>
+    <UserPref name="dataSource"
+              display_name="Data Source"
+              default_value="../../Build-Status-Dashboard/apis/emmaTestCoverage.jag">
+    </UserPref>
+    <UserPref name="updateGraph"
+              display_name="Update Interval (s)"
+              default_value="No">
+    </UserPref>
+    <Content type="html">
+    <![CDATA[
+ 	 <html>
+ <head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+	<title>Emma Test Coverage</title>
+	<link href="../../themes/portal/css/flot-graph.css" rel="stylesheet" type="text/css">
+	<link href="../../themes/portal/css/bootstrap.min.css" rel="stylesheet" type="text/css">
+	<script language="javascript" type="text/javascript" src="../../js/flot/excanvas.min.js"></script>
+	<script language="javascript" type="text/javascript" src="../../js/flot/jquery.js"></script>
+	<script language="javascript" type="text/javascript" src="../../js/bootstrap.js"></script>
+	<script language="javascript" type="text/javascript" src="../../js/flot/jquery.flot.js"></script>
+	<script language="javascript" type="text/javascript" src="../../js/flot/jquery.flot.pie.js"></script>
+	<script language="javascript" type="text/javascript" src="../../js/flot/jquery.flot.resize.js"></script>
+	<script language="javascript" type="text/javascript" src="../../../Build-Status-Dashboard/js/purl.js"></script>
+	<script language="javascript" type="text/javascript" src="../../../Build-Status-Dashboard/js/tooltips.js"></script>
+	<script language="javascript" type="text/javascript" src="../../../Build-Status-Dashboard/js/jquery.flot.JUMlib.js"></script>
+	<script language="javascript" type="text/javascript" src="../../../Build-Status-Dashboard/js/jquery.flot.spiral.js"></script>
+	<script language="javascript" type="text/javascript" src="js/custom_core.js"></script>
+
+	<script  language="javascript" type="text/javascript">
+
+	</script>
+	<style>
+		.graphWrapper{width:100%} /* at least 3x width of graph */
+		.graph-area{display:inline-block}
+	</style>
+</head>
+
+<body>
+		<div class="graphWrapper">
+		    <div class="graph-area" style="height:100%;width:24%;margin-top:0;">
+			<h4><center>Class Coverage</center></h4>
+			<div id="placeholder1" class="graph-area" style="height:100%;width:100%;"></div>
+		    </div>
+		     <div class="graph-area" style="height:100%;width:24%;margin-top:0;">
+			<h4><center>Method Coverage</center></h4>
+			<div id="placeholder2" class="graph-area" style="height:100%;width:100%;"></div>
+		    </div>
+ 		   <div class="graph-area" style="height:100%;width:24%;margin-top:0;">
+			<h4><center>Block Coverage</center></h4>
+			<div id="placeholder3" class="graph-area" style="height:100%;width:100%;"></div>
+		    </div>
+		    <div class="graph-area" style="height:100%;width:24%;margin-top:0;">
+			<h4><center>Line Coverage</center></h4>
+			<div id="placeholder4" class="graph-area" style="height:100%;width:100%;"></div>
+		    </div>
+		    
+		</div>
+
+</body>
+</html>
+
+    ]]>
+</Content>
+</Module>
+
+

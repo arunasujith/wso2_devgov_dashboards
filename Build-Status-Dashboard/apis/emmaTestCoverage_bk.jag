@@ -1,0 +1,146 @@
+<%
+  
+	var project_ID = request.getParameter("bambooID");
+
+//    payload_allClassCoverage | payload_allMethodCoverage | payload_allBlockCoverage | payload_allLineCoverage
+             
+	function getPackagesData(){
+
+		var results;
+		if(project_ID != null){
+ 
+			var query1 = "SELECT payload_planID,payload_buildNumber  FROM BambooSummary WHERE payload_projectID='"+project_ID+"';";
+			var reportID , noOfPackages , noOfClasses, noOfMethods, noOfBlocks, noOfLines , noOfFiles;
+			
+
+			config = {};
+			var db = new Database("jdbc:mysql://localhost:3306/greg", "root", "123", config);
+		
+			try{
+				results = db.query(query1);
+				var planID = results[0].payload_planID;
+				var buildNUmber = results[0].payload_buildNumber; //******************************** Create the payload_reportID
+				var planBuildNumber = planID+"-"+buildNUmber;
+
+				var query2  ="SELECT payload_allClassCoverage, payload_allMethodCoverage, payload_allBlockCoverage ,payload_allLineCoverage FROM BambooEmmaSummary WHERE payload_reportID='"+planBuildNumber+"' LIMIT 1;";
+				results = db.query(query2);
+	
+			}
+			catch(e){
+				print(e.toString());
+			}
+			finally{
+				db.close();
+			}
+
+		}
+		return results;
+	}
+
+	function getPercentage(data){
+		data = data.trim();
+		if(data.charAt(2) == '%'){
+			data = data.substr(0 , 2);			
+		}
+		else if(data.charAt(3) == '%'){
+			data = data.substr(0 , 3);
+		}
+		return data;
+	}
+
+    function getBlockCoverage(){
+
+		var covered = 0 ;
+		var notcovered = 0;
+
+		var results =  getPackagesData();
+
+		if(results != null){
+			var data = results[0].payload_allBlockCoverage;
+			covered = parseInt(getPercentage(data));
+			notcovered = parseInt(99 - covered);
+			
+		}
+
+    	var data =  {
+					"series0" : {"color" : "#2f7ed8", "label" : "Covered", "data" : "1"}, 
+					"series1" : {"color" : "#0d233a", "label" : "Not Covered", "data" : "3"}
+					}
+
+     	return data;
+    }
+
+    function getClassCoverage(){
+
+    	var data =  {
+					"series0" : {"color" : "#2f7ed8", "label" : "Covered", "data" : "2"}, 
+					"series1" : {"color" : "#0d233a", "label" : "Not Covered", "data" : "2"}
+					}
+
+     	return data;
+    }
+
+   function getLineCoverage(){
+
+    	var data =  {
+					"series0" : {"color" : "#2f7ed8", "label" : "Covered", "data" : "3"}, 
+					"series1" : {"color" : "#0d233a", "label" : "Not Covered", "data" : "1"}
+					}
+
+     	return data;
+    }
+
+   function getMethodCoverage(){
+
+    	var data =  {
+					"series0" : {"color" : "#2f7ed8", "label" : "Covered", "data" : "2"}, 
+					"series1" : {"color" : "#0d233a", "label" : "Not Covered", "data" : "1"}
+				}
+
+
+     	return data;
+    }
+
+ 	function getData(){
+
+		var data =  [ getClassCoverage(),getMethodCoverage(),getBlockCoverage(),getLineCoverage()   ] 
+
+		return data;
+	}
+
+	function labelFormatter(label, series) {
+	    return "<div style='font-size:8pt; text-align:center; padding:2px; color:white;'>"    + label + "<br/>" + series.data[0][1] + "%</div>";
+	}
+
+	var options = {
+		   series: {
+			pie: {
+			    show: true,
+			    radius:110
+			}
+		    },
+		    legend: {
+			show: false
+		    },
+		     
+		    	grid: {
+				hoverable: true
+			},
+			tooltip: true,
+			tooltipOpts: {
+				content: "%p.0%, %s",
+				shifts: {
+					x: 20,
+					y: 0
+				},
+				defaultTheme: true
+			}
+			
+	};
+	
+
+
+
+   print({'content':getData(),'options':options});
+%>
+

@@ -1,0 +1,81 @@
+<%
+//importClass(Packages.org.wso2.carbon.utility.qaportal.dss.util.JsonUtil);
+//importClass(Packages.org.wso2.carbon.utility.qaportal.QAPortalStats);
+//
+//var carbon = require('carbon');
+//var qaPortal = carbon.server.osgiService('org.wso2.carbon.utility.qaportal.QAPortal');
+//var buildId = request.getParameter("buildId");
+//
+//var testResults = qaPortal.getTestResultsByBuildId(buildId);
+//var testStatus = QAPortalStats.getTestStatus(testResults);
+//
+//var status = JSON.parse(String(JsonUtil.getJsonFromPojo(testStatus)));
+//
+//function getData() {
+//
+//    var data = [];
+//    var obj = {};
+//
+//    obj["series0"] = {"label":"In Progress","data":status["IN PROGRESS"]};
+//    obj["series1"] = {"label":"Passed","data":status["PASSED"]};
+//    obj["series2"] = {"label":"Failed","data":status["FAILED"]};
+//    obj["series4"] = {"label":"Not Executed","data":status["NOT EXECUTED"]};
+//
+//    data.push(obj);
+//    return data;
+//
+//}
+//
+//print(getData());
+
+    function getData(){
+
+        var data =  [
+                         ['In Progress',   45.0],
+                         ['Not Executed',  26.8],
+                         ['Passed',    8.5],
+                         {
+                             name: 'Failed',
+                             y: 12.8,
+                             sliced: true,
+                             selected: true
+                         }
+                      ]
+
+         return data;
+    }
+
+ var data = {
+            chart: {
+
+                plotBackgroundColor: null,
+                plotBorderWidth: null,
+                plotShadow: false
+            },
+            title: {
+                text: ''
+            },
+            tooltip: {
+                pointFormat: '{series.name}: <b>{point.percentage:.1f}%</b>'
+            },
+            plotOptions: {
+                pie: {
+                    allowPointSelect: true,
+                    cursor: 'pointer',
+                    dataLabels: {
+                        enabled: true,
+                        color: '#000000',
+                        connectorColor: '#000000',
+                        format: '<b>{point.name}</b>: {point.percentage:.1f} %'
+                    }
+                }
+            },
+            series: [{
+                type: 'pie',
+                name: 'Tests',
+                data:  getData()
+
+            }]
+        }
+   print(data);
+%>
